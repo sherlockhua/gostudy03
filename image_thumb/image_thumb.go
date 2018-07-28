@@ -13,8 +13,8 @@ import (
 	"github.com/nfnt/resize"
 )
 
-const DEFAULT_MAX_WIDTH float64 = 320
-const DEFAULT_MAX_HEIGHT float64 = 240
+const DEFAULT_MAX_WIDTH float64 = 64
+const DEFAULT_MAX_HEIGHT float64 = 64
 
 // 计算图片缩放后的尺寸
 func calculateRatioFit(srcWidth, srcHeight int) (int, int) {
