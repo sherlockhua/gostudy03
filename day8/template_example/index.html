@@ -1,0 +1,21 @@
+<html>
+    <body>
+        <form action="/user/login" method="POST">
+            <div>
+                <span>用户名{{.Name}}</span>
+            </div>
+            <div>
+                <span>年龄：{{.Age}}</span>
+            </div>
+            {{if gt .Age 18}}
+            <div>
+                <span>hello, old man</span>
+            </div>
+            {{else}}
+            <div>
+                <span>hello, young man</span>
+            </div>
+            {{end}}
+        </form>
+    </body>
+</html>

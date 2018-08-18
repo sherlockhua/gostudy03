@@ -1,0 +1,35 @@
+<html>
+    <body>
+        <form action="/user/login" method="POST">
+        {{range .}}
+            <div>
+                <span>用户名{{.Name}}</span>
+            </div>
+            <div>
+                <span>年龄：{{.Age}}</span>
+            </div>
+            {{if gt .Age 18}}
+            <div>
+                <span>hello, old man</span>
+            </div>
+            {{else}}
+            <div>
+                <span>hello, young man</span>
+            </div>
+            {{end}}
+            {{with .Address}}
+            <div>
+                <span>省：{{.Province}}</span>
+            </div>
+            <div>
+                <span>城市：{{.City}}</span>
+            </div>
+            <div>
+                <span>邮编：{{.Code}}</span>
+            </div>
+            <hr>
+            {{end}}
+        {{end}}
+        </form>
+    </body>
+</html>
