@@ -1,6 +1,7 @@
 package xlog
 
 type XLog interface {
+	Init() error
 	LogDebug(fmt string, args ...interface{})
 	LogTrace(fmt string, args ...interface{})
 	LogInfo(fmt string, args ...interface{})
@@ -8,6 +9,7 @@ type XLog interface {
 	LogError(fmt string, args ...interface{})
 	LogFatal(fmt string, args ...interface{})
 
+	Close()
 	SetLevel(level int)
 }
 

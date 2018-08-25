@@ -4,7 +4,7 @@ package main
 import (
 	"github.com/gostudy03/xlog"
 	"flag"
-	//"fmt"
+	"fmt"
 )
 
 func logic(logger xlog.XLog) {
@@ -37,6 +37,11 @@ func main() {
 		
 	}
 
-	logger := xlog.NewXLog(logType, xlog.XLogLevelDebug, "", "xlog_example")
+	logger := xlog.NewXLog(logType, xlog.XLogLevelDebug, "C:/tmp/xlog.log", "xlog_example")
+	err := logger.Init()
+	if err != nil {
+		fmt.Printf("logger init failed\n")
+		return
+	}
 	logic(logger)
 }
