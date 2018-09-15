@@ -53,6 +53,13 @@ func TestValue(a interface{}) {
 
 func main()  {
 	var a int
+	TestValue(&a)
+	fmt.Printf("a=%d\n", a)
+
+	var p *int = &a
+	*p = 100
+	/*
+	var a int
 	TestType(a)
 	var b string
 	TestType(b)
@@ -62,4 +69,5 @@ func main()  {
 	TestValue(&b)
 
 	fmt.Printf("a=%v b = %v \n", a, b)
+	*/
 }

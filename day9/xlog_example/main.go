@@ -7,12 +7,14 @@ import (
 	"fmt"
 )
 
-func logic(logger xlog.XLog) {
-	logger.LogDebug("dskskdskfksdf, user_id:%d username:%s", 388338, "username")
-	logger.LogTrace("dskskdskfksdf")
-	logger.LogInfo("dskskdskfksdf")
-	logger.LogWarn("dskskdskfksdf")
-	logger.LogError("dskskdskfksdf")
+func logic() {
+	for {
+		xlog.LogDebug("dskskdskfksdf, user_id:%d username:%s", 388338, "username")
+		xlog.LogTrace("dskskdskfksdf")
+		xlog.LogInfo("dskskdskfksdf")
+		xlog.LogWarn("dskskdskfksdf")
+		xlog.LogError("dskskdskfksdf")
+	}
 }
 
 /*
@@ -37,11 +39,15 @@ func main() {
 		
 	}
 
-	logger := xlog.NewXLog(logType, xlog.XLogLevelDebug, "C:/tmp/xlog.log", "xlog_example")
-	err := logger.Init()
+	xlog.LogDebug("log type is %v", logType)
+
+	_ = logType
+	err := xlog.Init(logType, xlog.XLogLevelDebug, "C:/tmp/xlog.log", "xlog_example")
 	if err != nil {
 		fmt.Printf("logger init failed\n")
 		return
 	}
-	logic(logger)
+	logic()
+	xlog.Close()
+	fmt.Printf("close return")
 }

@@ -34,12 +34,49 @@ func TestValue(a interface{}) {
 	}
 }
 
+func TestValueConvert(str string){
+
+	//1. string -> interface{} -> reflect.Value
+	//var s1 interface{}
+	//s1 = str
+	value := reflect.ValueOf(str)
+
+	//2. reflect.Value ->interface{} ->string
+	s2 := value.Interface()
+	str2 := s2.(string)
+	fmt.Printf("s:%s\n", str2)
+}
+
+func typeConvert() {
+	
+	var c string = "hello"
+	var a int = 100
+	var b interface{}
+
+	b = a
+	a1, ok := b.(string)
+	if !ok {
+		fmt.Printf("b is not string\n")
+	}
+	fmt.Printf("a1=%s\n", a1)	
+
+	b = c
+	c1 := b.(string)
+	fmt.Printf("c1=%s\n", c1)	
+
+}
+
 func main()  {
 	
+	/*
 	var user User
 	user.Name = "xxx"
 	user.Age = 100
 	user.Sex = "man"
 	TestValue(user)
 	fmt.Printf("user:%#v\n", user)
+	*/
+	//var a string = "hello"
+	//TestValueConvert(a)
+	typeConvert()
 }

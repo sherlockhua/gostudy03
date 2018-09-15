@@ -37,7 +37,7 @@ func (l *XLogBase) formatLogger(level int, module string, format string, args ..
 		timeStr := now.Format("2006-01-02 15:04:05.000")
 	
 		levelStr := getLevelStr(level)
-		filename, funcName, lineNo := getLineInfo(3)
+		filename, funcName, lineNo := getLineInfo(5)
 	
 		filename = filepath.Base(filename)
 		data := fmt.Sprintf(format, args...)
