@@ -1,6 +1,7 @@
 package oconfig
 
 import (
+	"strconv"
 	"strings"
 	"io/ioutil"
 	"reflect"
@@ -48,14 +49,6 @@ func UnMarshal(data []byte, result interface{}) (err error) {
 			}
 
 			fmt.Printf("section:%s\n", sectionName)
-			/*
-			for i := 0; i <t.Elem().NumField(); i++ {
-				//field := v.Field(i)
-				field := t.Elem().Field(i)
-				if field.Tag.Get("ini") == sectionName {
-					fmt.Printf("found field by group name:%s\n", sectionName)
-				}
-			}*/
 		} else {
 			if len(sectionName) == 0 {
 				tips := fmt.Sprintf("syntax error, key-value:%s 不属于任何section， lineNo:%d", line, lineNo)
@@ -103,14 +96,32 @@ func UnMarshal(data []byte, result interface{}) (err error) {
 					switch tKeyField.Type.Kind() {
 					case reflect.String:
 						vKeyField.SetString(value)
+					case reflect.Int, reflect.Uint, reflect.Int16, reflect.Uint16:
+						fallthrough
+					case reflect.Int64, reflect.Uint64, reflect.Int32, reflect.Uint32:
+						valueInt, err := strconv.ParseInt(value, 10, 64)
+						if err != nil {
+							tips := fmt.Sprintf("value:%s can not convert to int64, lineNo:%d", value, lineNo)
+							panic(tips)
+						}
+						vKeyField.SetInt(valueInt)
+					case reflect.Float32, reflect.Float64:
+						valueFloat, err := strconv.ParseFloat(value, 64)
+						if err != nil {
+							tips := fmt.Sprintf("value:%s can not convert to float64, lineNo:%d", value, lineNo)
+							panic(tips)
+						}
+						vKeyField.SetFloat(valueFloat)
+					default:
+						tips := fmt.Sprintf("key:\"%s\" can not convert to %v, lineNo:%d", 
+							key, tKeyField.Type.Kind(), lineNo)
+						panic(tips)
 					}
 				}
 				break
 			}
 			
 		}
-
-
 	}
 	return
 }
@@ -121,4 +132,69 @@ func UnMarshalFile(filename string, result interface{}) (err error) {
 		return
 	}
 	return UnMarshal(data, result)
+}
+
+func Marshal(result interface{})(data []byte, err error) {
+
+	t := reflect.TypeOf(result)
+	v := reflect.ValueOf(result)
+
+	if t.Kind() != reflect.Struct {
+	    panic("please input struct type")
+		return
+	}
+
+	var strSlice []string
+	for i := 0; i < t.NumField(); i++ {
+		tField := t.Field(i)
+		vFiled := v.Field(i)
+		if tField.Type.Kind() != reflect.Struct {
+			continue
+		}
+
+		sectionName := tField.Name
+		if len(tField.Tag.Get("ini")) > 0  {
+			sectionName = tField.Tag.Get("ini")
+		}
+
+		sectionName = fmt.Sprintf("[%s]\n", sectionName)
+		strSlice = append(strSlice, sectionName)
+		for j := 0; j < tField.Type.NumField(); j++ {
+			//1. 拿到类型信息
+			subTField := tField.Type.Field(j)
+			if subTField.Type.Kind() == reflect.Struct || subTField.Type.Kind() == reflect.Ptr{
+				//跳过结构体字段
+				continue
+			}
+
+			subTFieldName := subTField.Name
+			subTFieldTagName := subTField.Tag.Get("ini")
+			if len(subTFieldTagName) > 0 {
+				subTFieldName = subTFieldTagName
+			}
+
+			//2. 拿到值信息
+			subVField := vFiled.Field(j)
+			fieldStr := fmt.Sprintf("%s=%v\n", subTFieldName, subVField.Interface())
+			fmt.Printf("conf:%s\n", fieldStr)
+
+			strSlice = append(strSlice, fieldStr)
+		}
+	}
+
+	for _, v := range strSlice {
+		data = append(data, []byte(v)...)
+	}
+	return
+}
+
+func MarshalFile(filename string, result interface{}) (err error) {
+
+	data, err := Marshal(result)
+	if err != nil {
+		return
+	}
+
+	err = ioutil.WriteFile(filename, data, 0755)
+	return
 }

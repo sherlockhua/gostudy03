@@ -22,6 +22,7 @@ type DbConf struct {
 	Host string `ini:"host"`
 	Port int  `ini:"port"`
 	Database string `ini:"database"`
+	Rate float32 `ini:"rate"`
 }
 
 func main() {
@@ -34,4 +35,6 @@ func main() {
 	}
 
 	fmt.Printf("conf:%#v\n", conf)
+
+	oconfig.MarshalFile("c:/tmp/test.ini", conf)
 }
