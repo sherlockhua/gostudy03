@@ -3,6 +3,7 @@ package kafka
 import (
 	"fmt"
 	"github.com/Shopify/sarama"
+	"github.com/gostudy03/xlog"
 )
 
 var (
@@ -24,11 +25,12 @@ func Init(address []string, chanSize int) (err error){
 
 	client, err = sarama.NewSyncProducer(address, config)
 	if err != nil {
-		fmt.Println("producer close, err:", err)
+		xlog.LogError("producer close, err:", err)
 		return
 	}
 
 	msgChan = make(chan *Message, chanSize)
+	go sendKafka()
 	return
 	/*
 	defer client.Close()
@@ -45,7 +47,27 @@ func Init(address []string, chanSize int) (err error){
 	*/
 }
 
+func sendKafka() {
+	for msg := range msgChan {
+
+		kafkaMsg := &sarama.ProducerMessage{}
+		kafkaMsg.Topic =  msg.Topic
+		kafkaMsg.Value = sarama.StringEncoder(msg.Line)
+
+		pid, offset, err := client.SendMessage(kafkaMsg)
+		if err != nil {
+			xlog.LogError("send message failed,", err)
+			continue
+		}
+		xlog.LogDebug("pid:%v offset:%v", pid, offset)
+	}
+}
+
 func SendLog(msg *Message) (err error) {
+
+	if len(msg.Line) == 0 {
+		return
+	}
 
 	select {
 	case msgChan <- msg:

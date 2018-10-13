@@ -1,6 +1,7 @@
 package tailf
 
 import (
+	"github.com/gostudy03/xlog"
 	"fmt"
 	"github.com/hpcloud/tail"
 )
@@ -19,7 +20,7 @@ func Init(filename string) (err error) {
 		Poll:      true,
 	})
 	if err != nil {
-		fmt.Println("tail file err:", err)
+		xlog.LogError("tail file err:", err)
 		return
 	}
 	return
