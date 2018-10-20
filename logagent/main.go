@@ -6,41 +6,14 @@ import (
 	"github.com/gostudy03/xlog"
 	"github.com/gostudy03/logagent/kafka"
 	"github.com/gostudy03/logagent/tailf"
+	"github.com/gostudy03/logagent/etcd"
+	"github.com/gostudy03/logagent/common"
 	"fmt"
 )
 
 var (
-	appConfig AppConfig
+	appConfig common.AppConfig
 )
-
-type AppConfig struct {
-	KafkaConf KafkaConfig `ini:"kafka"`
-	CollectLogConf  CollectLogConfig `ini:"collect_log_conf"`
-	LogConf LogConfig `ini:"logs"`
-}
-
-type KafkaConfig struct {
-	Address string `ini:"address"`
-	QueueSize int  `ini:"queue_size"`
-}
-
-type CollectLogConfig struct {
-	LogFilenames string `ini:"log_filenames"`
-}
-
-/*
-log_level=debug    
-filename=./logs/logagent.log
-#console|file
-log_type=file
-module=logagent
-*/
-type LogConfig struct {
-	LogLevel string `ini:"log_level"`
-	Filename string `ini:"filename"`
-	LogType string `ini:"log_type"`
-	Module string `ini:"module"`
-}
 
 func initConfig(filename string) (err error) {
 
@@ -129,6 +102,17 @@ func main() {
 	}
 
 	xlog.LogDebug("init kafka succ")
+
+	//初始化etcd client
+	address = strings.Split(appConfig.EtcdConf.Address, ",")
+	err = etcd.Init(address)
+	if err != nil {
+		panic(fmt.Sprintf("init etcd client failed, err:%v", err))
+	}
+	xlog.LogDebug("init etcd succ, address:%v", address)
+
+	logCollectConf, err := etcd.GetConfig(appConfig.EtcdConf.EtcdKey)
+	xlog.LogDebug("etcd conf:%#v", logCollectConf)
 
 	err = tailf.Init(appConfig.CollectLogConf.LogFilenames)
 	if err != nil {
