@@ -15,7 +15,6 @@ type CollectConfig struct {
 
 type AppConfig struct {
 	KafkaConf KafkaConfig `ini:"kafka"`
-	CollectLogConf  CollectLogConfig `ini:"collect_log_conf"`
 	LogConf LogConfig `ini:"logs"`
 	EtcdConf EtcdConfig `ini:"etcd"`
 }
@@ -23,10 +22,6 @@ type AppConfig struct {
 type KafkaConfig struct {
 	Address string `ini:"address"`
 	QueueSize int  `ini:"queue_size"`
-}
-
-type CollectLogConfig struct {
-	LogFilenames string `ini:"log_filenames"`
 }
 
 type EtcdConfig struct {

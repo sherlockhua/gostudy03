@@ -28,27 +28,8 @@ func initConfig(filename string) (err error) {
 
 func run() (err error){
 
-	//不断从tailf里面读取日志数据，然后通过kakfa发送
-	for {
-		//1.从tailf读取数据
-		line, err := tailf.ReadLine()
-		if err != nil {
-			continue
-		}
-
-		xlog.LogDebug("line:%s", line.Text)
-		msg := &kafka.Message{
-			Line: line.Text,
-			Topic: "nginx_log",
-		}
-
-		err = kafka.SendLog(msg)
-		if err != nil {
-			xlog.LogWarn("send log failed, err:%v\n", err)
-		}
-		xlog.LogDebug("send to kafka succ\n")
-	}
-
+	//不断检测etcd配置是否有变更，如果有变更，那么需要对日志收集任务进行管理。
+	tailf.Run()
 	return
 }
 
@@ -114,7 +95,7 @@ func main() {
 	logCollectConf, err := etcd.GetConfig(appConfig.EtcdConf.EtcdKey)
 	xlog.LogDebug("etcd conf:%#v", logCollectConf)
 
-	err = tailf.Init(appConfig.CollectLogConf.LogFilenames)
+	err = tailf.Init(logCollectConf)
 	if err != nil {
 		panic(fmt.Sprintf("init tailf client failed, err:%v", err))
 	}

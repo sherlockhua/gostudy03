@@ -36,7 +36,7 @@ func Init(address []string)(err error) {
 	return
 }
 
-func GetConfig(key string) (conf []common.CollectConfig, err error) {
+func GetConfig(key string) (conf []*common.CollectConfig, err error) {
 
 	resp , err := etcdClient.client.Get(context.Background(), key)
 	if err != nil {

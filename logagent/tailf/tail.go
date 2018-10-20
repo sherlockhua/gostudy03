@@ -4,44 +4,75 @@ import (
 	"github.com/gostudy03/xlog"
 	"fmt"
 	"github.com/hpcloud/tail"
+	"github.com/gostudy03/logagent/kafka"
 )
 
-var (
-	tailObj *tail.Tail
-)
+type TailObj struct {
+	Path string
+	ModuleName string
+	Topic string
+	tailx *tail.Tail
+}
 
-func Init(filename string) (err error) {
+func NewTailObj(path, module, topic string)(tailObj *TailObj, err error) {
+	tailObj = &TailObj{}
+	err = tailObj.Init(path, module, topic)
+	return
+}
+
+func (t *TailObj) Init(path, module, topic string) (err error) {
 	
-	tailObj, err = tail.TailFile(filename, tail.Config{
+	t.Path = path
+	t.ModuleName = module
+	t.Topic = topic
+
+	t.tailx, err = tail.TailFile(path, tail.Config{
 		ReOpen:    true,
 		Follow:    true,
 		Location:  &tail.SeekInfo{Offset: 0, Whence: 2},
 		MustExist: false,
 		Poll:      true,
 	})
+
 	if err != nil {
 		xlog.LogError("tail file err:", err)
 		return
 	}
 	return
-	/*
-	var msg *tail.Line
-	var ok bool
-	for true {
-		msg, ok = <-tails.Lines
-		if !ok {
-			fmt.Printf("tail file close reopen, filename:%s\n", tails.Filename)
-			time.Sleep(100 * time.Millisecond)
-			continue
-		}
-		fmt.Println("msg:", msg.Text)
-	}
-	*/
 }
 
-func ReadLine() (msg *tail.Line, err error) {
+func (t *TailObj) Run() {
+	for {
+		select {
+		case line, ok := <- t.tailx.Lines:
+			if !ok {
+				xlog.LogWarn("get message from tailf failed")
+				continue
+			}
+
+			if len(line.Text) == 0 {
+				continue
+			}
+
+			xlog.LogDebug("line:%s", line.Text)
+			msg := &kafka.Message{
+				Line: line.Text,
+				Topic: t.Topic,
+			}
+	
+			err := kafka.SendLog(msg)
+			if err != nil {
+				xlog.LogWarn("send log failed, err:%v\n", err)
+				continue
+			}
+			xlog.LogDebug("send to kafka succ\n")
+		}
+	}
+}
+
+func (t *TailObj)ReadLine() (msg *tail.Line, err error) {
 	var ok bool
-	msg, ok = <- tailObj.Lines
+	msg, ok = <- t.tailx.Lines
 	if !ok {
 		err = fmt.Errorf("read line failed")
 		return
