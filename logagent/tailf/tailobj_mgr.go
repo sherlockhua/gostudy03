@@ -7,7 +7,7 @@ import (
 
 type TailTaskMgr struct {
 
-	tailTaskList []*TailTask
+	tailTaskMap map[string]*TailTask
 	collectLogList []*common.CollectConfig
 	etcdCh <- chan []*common.CollectConfig
 }
@@ -20,6 +20,7 @@ func Init(collectLogList []*common.CollectConfig, etcdCh <- chan []*common.Colle
 	tailTaskMgr = &TailTaskMgr {
 		collectLogList: collectLogList,
 		etcdCh: etcdCh,
+		tailTaskMap:make(map[string]*TailTask, 16),
 	}
 
 	for _, conf := range collectLogList {
@@ -36,15 +37,16 @@ func Init(collectLogList []*common.CollectConfig, etcdCh <- chan []*common.Colle
 		}
 
 		go tailTask.Run()
-		tailTaskMgr.tailTaskList = append(tailTaskMgr.tailTaskList, tailTask)
+		tailTaskMgr.tailTaskMap[tailTask.Key()] = tailTask
+		//tailTaskMgr.tailTaskList = append(tailTaskMgr.tailTaskList, tailTask)
 	}
 	return
 }
 
 func (t *TailTaskMgr) listTask() {
-	for index, task := range t.tailTaskList {
-		xlog.LogDebug("=============task%d==========: module:%s path:%s topic:%s is running",
-			 index, task.Path, task.ModuleName, task.Topic)
+	for key, task := range t.tailTaskMap {
+		xlog.LogDebug("=============task:%s======== is running",
+			 key, task.Topic)
 	}
 }
 
@@ -72,12 +74,13 @@ func (t *TailTaskMgr) run() {
 			}
 	
 			go tailTask.Run()
-			tailTaskMgr.tailTaskList = append(tailTaskMgr.tailTaskList, tailTask)
+			tailTaskMgr.tailTaskMap[tailTask.Key()] = tailTask
+			//tailTaskMgr.tailTaskList = append(tailTaskMgr.tailTaskList, tailTask)
 		}
 
 		//从已经运行的任务里面判断是否存在最新的配置当中，如果不存在的话，说明这个任务的配置已经被删除
 		//我们就需要把这个任务给停了
-		for index, task := range t.tailTaskList {
+		for key, task := range t.tailTaskMap {
 			found := false
 			for _, conf := range tmpCollectLogList {
 				if task.Path == conf.Path && 
@@ -91,7 +94,8 @@ func (t *TailTaskMgr) run() {
 			if found == false {
 				//需要把这个任务取消，并且从tailTaskList删除
 				task.Stop()
-
+				delete(t.tailTaskMap,key)
+/*
 				prevTask := t.tailTaskList[0:index]
 				nextTask := t.tailTaskList[index+1:]
 
@@ -100,6 +104,7 @@ func (t *TailTaskMgr) run() {
 				taskList = append(taskList, nextTask...)
 
 				t.tailTaskList = taskList
+				*/
 			}
 		}
 	}
@@ -107,7 +112,7 @@ func (t *TailTaskMgr) run() {
 
 func (t *TailTaskMgr) exists(conf *common.CollectConfig) (bool) {
 	
-	for _, tailTask := range t.tailTaskList {
+	for _, tailTask := range t.tailTaskMap {
 		if tailTask.Path == conf.Path && 
 		tailTask.ModuleName == conf.ModuleName && 
 		tailTask.Topic == conf.Topic {

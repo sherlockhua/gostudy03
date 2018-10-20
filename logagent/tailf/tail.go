@@ -5,6 +5,7 @@ import (
 	"github.com/gostudy03/xlog"
 	"github.com/hpcloud/tail"
 	"github.com/gostudy03/logagent/kafka"
+	"fmt"
 )
 
 type TailTask struct {
@@ -42,6 +43,11 @@ func (t *TailTask) Init(path, module, topic string) (err error) {
 		return
 	}
 	return
+}
+
+func (t *TailTask) Key() string{
+	key := fmt.Sprintf("%s_%s_%s", t.Path, t.ModuleName, t.Topic)
+	return key
 }
 
 func (t *TailTask) Stop() {
