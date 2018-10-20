@@ -1,6 +1,7 @@
 package tailf
 
 import (
+	"context"
 	"github.com/gostudy03/xlog"
 	"github.com/hpcloud/tail"
 	"github.com/gostudy03/logagent/kafka"
@@ -11,6 +12,8 @@ type TailTask struct {
 	ModuleName string
 	Topic string
 	tailx *tail.Tail
+	ctx context.Context
+	cancel context.CancelFunc
 }
 
 func NewTailTask(path, module, topic string)(tailTask *TailTask, err error) {
@@ -25,6 +28,7 @@ func (t *TailTask) Init(path, module, topic string) (err error) {
 	t.ModuleName = module
 	t.Topic = topic
 
+	t.ctx, t.cancel = context.WithCancel(context.Background())
 	t.tailx, err = tail.TailFile(path, tail.Config{
 		ReOpen:    true,
 		Follow:    true,
@@ -40,9 +44,16 @@ func (t *TailTask) Init(path, module, topic string) (err error) {
 	return
 }
 
+func (t *TailTask) Stop() {
+	t.cancel()
+}
+
 func (t *TailTask) Run() {
 	for {
 		select {
+		case <- t.ctx.Done():
+			xlog.LogWarn("task path:%s module:%s topic:%s is exit", t.Path, t.ModuleName, t.Topic)
+			return
 		case line, ok := <- t.tailx.Lines:
 			if !ok {
 				xlog.LogWarn("get message from tailf failed")
