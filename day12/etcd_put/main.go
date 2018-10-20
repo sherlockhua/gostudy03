@@ -25,6 +25,13 @@ func main()  {
 		Path:"c:/tmp/a.log",
 		ModuleName:"nginx",
 	}
+	logCollectArray = append(logCollectArray, logCollect)
+
+	logCollect = common.CollectConfig{
+		Topic:"nginx_log",
+		Path:"c:/tmp/b.log",
+		ModuleName:"nginx",
+	}
 
 	logCollectArray = append(logCollectArray, logCollect)
 	data, err := json.Marshal(logCollectArray)

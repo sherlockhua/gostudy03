@@ -12,15 +12,19 @@ import (
 type EtcdClient struct {
 	client *clientv3.Client
 	address []string
+	watchKey string
+	dataCh chan []*common.CollectConfig
 }
 
 var (
 	etcdClient *EtcdClient
 )
 
-func Init(address []string)(err error) {
+func Init(address []string, watchKey string)(err error) {
 	etcdClient = &EtcdClient {
 		address: address,
+		watchKey:watchKey,
+		dataCh: make(chan []*common.CollectConfig),
 	}
 
 	etcdClient.client, err = clientv3.New(clientv3.Config{
@@ -33,7 +37,44 @@ func Init(address []string)(err error) {
 		return
 	}
 
+	go etcdClient.watch()
 	return
+}
+
+func (e *EtcdClient) watch() {
+	for {
+		resultCh := e.client.Watch(context.Background(), e.watchKey)
+		xlog.LogDebug("wacth return, resultCh:%v", resultCh)
+		for v := range resultCh {
+			xlog.LogDebug("wacth return, v:%v", v)
+			if v.Err() != nil {
+				xlog.LogError("watch:%s failed, err:%v\n",e.watchKey, v.Err())
+				continue;
+			}
+
+			for _, event := range v.Events {
+				xlog.LogDebug("event_type:%v key:%v val:%v\n", event.Type, event.Kv.Key, string(event.Kv.Value))
+				var conf []*common.CollectConfig
+				if event.Type == clientv3.EventTypeDelete {
+					e.dataCh <- conf
+					continue
+				}
+
+				err := json.Unmarshal(event.Kv.Value, &conf)
+				if err != nil {
+					xlog.LogWarn("unmarshal failed, key:%s val:%s", e.watchKey, string(event.Kv.Value))
+					continue
+				}
+
+				e.dataCh <- conf
+			}
+		}
+	}
+}
+
+func Watch() <- chan []*common.CollectConfig{
+
+	return etcdClient.dataCh
 }
 
 func GetConfig(key string) (conf []*common.CollectConfig, err error) {

@@ -86,7 +86,7 @@ func main() {
 
 	//初始化etcd client
 	address = strings.Split(appConfig.EtcdConf.Address, ",")
-	err = etcd.Init(address)
+	err = etcd.Init(address, appConfig.EtcdConf.EtcdKey)
 	if err != nil {
 		panic(fmt.Sprintf("init etcd client failed, err:%v", err))
 	}
@@ -95,7 +95,8 @@ func main() {
 	logCollectConf, err := etcd.GetConfig(appConfig.EtcdConf.EtcdKey)
 	xlog.LogDebug("etcd conf:%#v", logCollectConf)
 
-	err = tailf.Init(logCollectConf)
+	watchCh := etcd.Watch()
+	err = tailf.Init(logCollectConf, watchCh)
 	if err != nil {
 		panic(fmt.Sprintf("init tailf client failed, err:%v", err))
 	}

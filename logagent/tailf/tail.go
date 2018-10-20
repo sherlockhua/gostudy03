@@ -2,25 +2,24 @@ package tailf
 
 import (
 	"github.com/gostudy03/xlog"
-	"fmt"
 	"github.com/hpcloud/tail"
 	"github.com/gostudy03/logagent/kafka"
 )
 
-type TailObj struct {
+type TailTask struct {
 	Path string
 	ModuleName string
 	Topic string
 	tailx *tail.Tail
 }
 
-func NewTailObj(path, module, topic string)(tailObj *TailObj, err error) {
-	tailObj = &TailObj{}
-	err = tailObj.Init(path, module, topic)
+func NewTailTask(path, module, topic string)(tailTask *TailTask, err error) {
+	tailTask = &TailTask{}
+	err = tailTask.Init(path, module, topic)
 	return
 }
 
-func (t *TailObj) Init(path, module, topic string) (err error) {
+func (t *TailTask) Init(path, module, topic string) (err error) {
 	
 	t.Path = path
 	t.ModuleName = module
@@ -41,7 +40,7 @@ func (t *TailObj) Init(path, module, topic string) (err error) {
 	return
 }
 
-func (t *TailObj) Run() {
+func (t *TailTask) Run() {
 	for {
 		select {
 		case line, ok := <- t.tailx.Lines:
@@ -68,15 +67,4 @@ func (t *TailObj) Run() {
 			xlog.LogDebug("send to kafka succ\n")
 		}
 	}
-}
-
-func (t *TailObj)ReadLine() (msg *tail.Line, err error) {
-	var ok bool
-	msg, ok = <- t.tailx.Lines
-	if !ok {
-		err = fmt.Errorf("read line failed")
-		return
-	}
-
-	return
 }
