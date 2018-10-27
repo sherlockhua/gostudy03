@@ -1,0 +1,74 @@
+{
+	"ImportPath": "github.com/gostudy03/day12/sys_monitor",
+	"GoVersion": "go1.10",
+	"GodepVersion": "v80",
+	"Deps": [
+		{
+			"ImportPath": "github.com/StackExchange/wmi",
+			"Comment": "1.0.0-3-gb12b22c",
+			"Rev": "b12b22c5341f0c26d88c4d66176330500e84db68"
+		},
+		{
+			"ImportPath": "github.com/go-ole/go-ole",
+			"Comment": "v1.2.1-12-g7a0fa49",
+			"Rev": "7a0fa49edf48165190530c675167e2f319a05268"
+		},
+		{
+			"ImportPath": "github.com/go-ole/go-ole/oleutil",
+			"Comment": "v1.2.1-12-g7a0fa49",
+			"Rev": "7a0fa49edf48165190530c675167e2f319a05268"
+		},
+		{
+			"ImportPath": "github.com/shirou/gopsutil/cpu",
+			"Comment": "v2.18.07-27-g3ec50d2",
+			"Rev": "3ec50d2876a36047b2ca39f955ba88fb7a455e92"
+		},
+		{
+			"ImportPath": "github.com/shirou/gopsutil/disk",
+			"Comment": "v2.18.07-27-g3ec50d2",
+			"Rev": "3ec50d2876a36047b2ca39f955ba88fb7a455e92"
+		},
+		{
+			"ImportPath": "github.com/shirou/gopsutil/host",
+			"Comment": "v2.18.07-27-g3ec50d2",
+			"Rev": "3ec50d2876a36047b2ca39f955ba88fb7a455e92"
+		},
+		{
+			"ImportPath": "github.com/shirou/gopsutil/internal/common",
+			"Comment": "v2.18.07-27-g3ec50d2",
+			"Rev": "3ec50d2876a36047b2ca39f955ba88fb7a455e92"
+		},
+		{
+			"ImportPath": "github.com/shirou/gopsutil/load",
+			"Comment": "v2.18.07-27-g3ec50d2",
+			"Rev": "3ec50d2876a36047b2ca39f955ba88fb7a455e92"
+		},
+		{
+			"ImportPath": "github.com/shirou/gopsutil/mem",
+			"Comment": "v2.18.07-27-g3ec50d2",
+			"Rev": "3ec50d2876a36047b2ca39f955ba88fb7a455e92"
+		},
+		{
+			"ImportPath": "github.com/shirou/gopsutil/net",
+			"Comment": "v2.18.07-27-g3ec50d2",
+			"Rev": "3ec50d2876a36047b2ca39f955ba88fb7a455e92"
+		},
+		{
+			"ImportPath": "github.com/shirou/gopsutil/process",
+			"Comment": "v2.18.07-27-g3ec50d2",
+			"Rev": "3ec50d2876a36047b2ca39f955ba88fb7a455e92"
+		},
+		{
+			"ImportPath": "github.com/shirou/w32",
+			"Rev": "bb4de0191aa41b5507caa14b0650cdbddcd9280b"
+		},
+		{
+			"ImportPath": "golang.org/x/sys/unix",
+			"Rev": "2772b66316d2c587efeb188dcd5ebc6987656e84"
+		},
+		{
+			"ImportPath": "golang.org/x/sys/windows",
+			"Rev": "2772b66316d2c587efeb188dcd5ebc6987656e84"
+		}
+	]
+}

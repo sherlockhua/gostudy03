@@ -9,9 +9,70 @@ import (
 	"github.com/shirou/gopsutil/host"
 	"github.com/shirou/gopsutil/mem"
 	"github.com/shirou/gopsutil/net"
+	"github.com/shirou/gopsutil/load"
 )
 
-func collet() {
+func cpuInfo()  {
+	cpuInfos, err := cpu.Info()
+	if err != nil {
+		fmt.Printf("get cpu info failed, err:%v\n", err)
+		return
+	}
+	for _, ci := range cpuInfos {
+		fmt.Printf("cpu:%#v\n", ci)
+	}
+
+	for {
+		percent, _ := cpu.Percent(time.Second, false)
+		fmt.Printf("cpu percent:%v\n", percent)
+	}
+}
+
+func memInfo() {
+	mInfo, _ := mem.VirtualMemory()
+	fmt.Printf("mem_info:%#v,uptime:%v\n", mInfo)
+}
+
+func hostInfo() {
+	hInfo, _ := host.Info()
+	fmt.Printf("hostInfo:%#v uptime:%v boottime:%v\n", hInfo, hInfo.Uptime, hInfo.BootTime)
+}
+
+func diskInfo() {
+	dInfo, _ := disk.Usage("D:")
+	fmt.Printf("disk:%#v total:%v free:%v used:%v\n", dInfo, dInfo.Total, dInfo.Free, dInfo.Used)
+
+	part, _ := disk.Partitions(true)
+	for _, v := range part {
+		fmt.Printf("part: %#v\n", v)
+	}
+
+	ioStat, _ := disk.IOCounters()
+	for k, v := range ioStat {
+		fmt.Printf("%v: %v\n", k, v)
+	}
+}
+
+func cpuLoad() {
+	info, _ := load.Avg()
+	fmt.Printf("load:%#v\n", info)
+}
+
+func netInfo() {
+	info, _ := net.IOCounters(true)
+	for index, value := range info {
+		fmt.Printf("net%d, %#v, recv:%v send:%v\n", index, value, value.BytesRecv, value.BytesSent)
+	}
+}
+
+func main() {
+	//cpuInfo()
+	//memInfo()
+	//hostInfo()
+	diskInfo()
+	//cpuLoad()
+	//netInfo()
+	return
 	v, _ := mem.VirtualMemory()
 	c, _ := cpu.Info()
 	cc, _ := cpu.Percent(time.Second, false)

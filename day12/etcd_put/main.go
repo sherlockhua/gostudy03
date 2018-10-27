@@ -19,6 +19,14 @@ func main()  {
 
 	defer client.Close()
 
+	localIP, err := common.GetLocalIP()
+	if err != nil {
+		fmt.Printf("get local ip failed, err:%v\n", err)
+		return
+	}
+
+	fmt.Printf("local ip:%s\n", localIP)
+
 	var logCollectArray []common.CollectConfig
 	logCollect := common.CollectConfig{
 		Topic:"nginx_log",
@@ -43,8 +51,12 @@ func main()  {
 		fmt.Printf("marshal failed, conf:%#v\n", logCollectArray)
 		return
 	}
-	_, err = client.Put(context.Background(), "/logagent/conf", string(data))
+
+	etcdKey := fmt.Sprintf("/logagent/%s/conf", localIP)
+
+	_, err = client.Put(context.Background(), etcdKey, string(data))
 	if err != nil {
 		fmt.Printf("put failed, err:%v\n", err)
 	}
+	fmt.Printf("put config to etcd succ, key:%s\n", etcdKey)
 }

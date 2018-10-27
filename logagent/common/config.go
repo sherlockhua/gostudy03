@@ -1,5 +1,9 @@
 package common
 
+import (
+	"time"
+)
+
 
 type CollectConfig struct {
 	/*
@@ -12,6 +16,10 @@ type CollectConfig struct {
 	Topic string `json:"topic"`
 }
 
+type CollectSystemInfoConfig struct {
+	Interval time.Duration 	`json:"interval"`
+	Topic string    `json:"topic"`
+}
 
 type AppConfig struct {
 	KafkaConf KafkaConfig `ini:"kafka"`
@@ -27,6 +35,7 @@ type KafkaConfig struct {
 type EtcdConfig struct {
 	Address string `ini:"address"`
 	EtcdKey string `ini:"etcd_key"`
+	EtcdCollectSystemInfoKey string `ini:"etcd_collect_system_info_key"`
 }
 
 /*
@@ -41,4 +50,10 @@ type LogConfig struct {
 	Filename string `ini:"filename"`
 	LogType string `ini:"log_type"`
 	Module string `ini:"module"`
+}
+
+
+type LogAgentData struct {
+	IP string
+	Data string
 }

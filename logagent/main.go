@@ -1,6 +1,8 @@
 package main
 
 import (
+	"time"
+	"sync"
 	"strings"
 	"github.com/gostudy03/oconfig"
 	"github.com/gostudy03/xlog"
@@ -8,11 +10,13 @@ import (
 	"github.com/gostudy03/logagent/tailf"
 	"github.com/gostudy03/logagent/etcd"
 	"github.com/gostudy03/logagent/common"
+	"github.com/gostudy03/logagent/collect_sys_info"
 	"fmt"
 )
 
 var (
 	appConfig common.AppConfig
+	waitGroup sync.WaitGroup
 )
 
 func initConfig(filename string) (err error) {
@@ -26,10 +30,14 @@ func initConfig(filename string) (err error) {
 	return
 }
 
-func run() (err error){
+func run(collectSystemInfoConfig *common.CollectSystemInfoConfig) (err error){
 
+	waitGroup.Add(2)
+	go collect_sys_info.Run(&waitGroup, collectSystemInfoConfig.Interval, collectSystemInfoConfig.Topic)
 	//不断检测etcd配置是否有变更，如果有变更，那么需要对日志收集任务进行管理。
-	tailf.Run()
+	go tailf.Run(&waitGroup)
+	
+	waitGroup.Wait()
 	return
 }
 
@@ -69,6 +77,13 @@ func main() {
 		panic(fmt.Sprintf("init config failed, err:%v", err))
 	}
 
+	ip, err := common.GetLocalIP()
+	if err != nil {
+		xlog.LogError("get local ip failed, err:%v", err)
+		return
+	}
+	
+	xlog.LogDebug("local ip succ, ip:%v", ip)
 	err = initLog()
 	if err != nil {
 		panic(fmt.Sprintf("init logs failed, err:%v", err))
@@ -85,15 +100,27 @@ func main() {
 	xlog.LogDebug("init kafka succ")
 
 	//初始化etcd client
+	etcdKey := fmt.Sprintf(appConfig.EtcdConf.EtcdKey, ip)
+	xlog.LogDebug("etcd key is %v", etcdKey)
+
 	address = strings.Split(appConfig.EtcdConf.Address, ",")
-	err = etcd.Init(address, appConfig.EtcdConf.EtcdKey)
+	err = etcd.Init(address, etcdKey)
 	if err != nil {
 		panic(fmt.Sprintf("init etcd client failed, err:%v", err))
 	}
 	xlog.LogDebug("init etcd succ, address:%v", address)
 
-	logCollectConf, err := etcd.GetConfig(appConfig.EtcdConf.EtcdKey)
+	logCollectConf, err := etcd.GetConfig(etcdKey)
 	xlog.LogDebug("etcd conf:%#v", logCollectConf)
+
+	etcdCollectSystemInfoKey := fmt.Sprintf(appConfig.EtcdConf.EtcdCollectSystemInfoKey, ip)
+	collectSystemInfoConfig, err := etcd.GetCollectSystemInfoConfig(etcdCollectSystemInfoKey)
+	if err != nil {
+		collectSystemInfoConfig = &common.CollectSystemInfoConfig{}
+		collectSystemInfoConfig.Topic = "collect_system_info"
+		collectSystemInfoConfig.Interval = 5 * time.Second
+		xlog.LogError("get collect system info config failed, use default conf:%#v", collectSystemInfoConfig)
+	}
 
 	watchCh := etcd.Watch()
 	err = tailf.Init(logCollectConf, watchCh)
@@ -102,7 +129,7 @@ func main() {
 	}
 
 	xlog.LogDebug("init tailf succ")
-	err = run()
+	err = run(collectSystemInfoConfig)
 	if err != nil {
 		xlog.LogError("run failed, err:%v", err)
 		return
