@@ -1,12 +1,11 @@
 package main
 
 import (
-	"github.com/gostudy03/xlog"
 	"github.com/gostudy03/day15/tcp_chat/protocal"
-	
+	"github.com/gostudy03/xlog"
+
 	"fmt"
 	"net"
-	
 )
 
 func main() {
@@ -45,8 +44,8 @@ func process(conn net.Conn) {
 	}
 }
 
-func processMessage(conn net.Conn, cmdNo uint16, message interface{}) (err error){
-	switch(cmdNo) {
+func processMessage(conn net.Conn, cmdNo uint16, message interface{}) (err error) {
+	switch cmdNo {
 	case protocal.GetRoomListCmd:
 		getRoomList, ok := message.(*protocal.GetRoomList)
 		if !ok {
@@ -62,12 +61,19 @@ func processMessage(conn net.Conn, cmdNo uint16, message interface{}) (err error
 			return
 		}
 		return procEnterRoom(conn, cmdNo, enterRoom)
-	}
 
+	case protocal.UserSendTextCmd:
+		sendText, ok := message.(*protocal.UserSendText)
+		if !ok {
+			xlog.LogError("convert to protocal.GetRoomList failed, message:%#v", message)
+			return
+		}
+		return procSendText(conn, cmdNo, sendText)
+	}
 	return
 }
 
-func procGetRoomList(conn net.Conn, cmdNo uint16, getRoomList *protocal.GetRoomList)(err error) {
+func procGetRoomList(conn net.Conn, cmdNo uint16, getRoomList *protocal.GetRoomList) (err error) {
 	xlog.LogDebug("start process get room list, user_id:%d", getRoomList.UserId)
 
 	allRoomList := &protocal.AllRoomList{}
@@ -88,17 +94,21 @@ func procGetRoomList(conn net.Conn, cmdNo uint16, getRoomList *protocal.GetRoomL
 	return
 }
 
-
-func procEnterRoom(conn net.Conn, cmdNo uint16, enterRoom *protocal.UserEnterRoom)(err error) {
-	xlog.LogDebug("start process user enter room, user_id:%d, room_id:%d", 
+func procEnterRoom(conn net.Conn, cmdNo uint16, enterRoom *protocal.UserEnterRoom) (err error) {
+	xlog.LogDebug("start process user enter room, user_id:%d, room_id:%d",
 		enterRoom.UserId, enterRoom.RoomId)
 
-	user := &User{
-		UserId: enterRoom.UserId,
-		UserName: enterRoom.UserName,
-		Conn:conn,
-	}
-
+	user := NewUser(enterRoom.UserId, enterRoom.UserName, conn)
 	roomMgr.EnterRoom(user, enterRoom.RoomId)
 	return
 }
+
+
+func procSendText(conn net.Conn, cmdNo uint16, sendText *protocal.UserSendText) (err error) {
+	xlog.LogDebug("start process user send text, user_id:%d, room_id:%d, text:%s",
+		sendText.UserId, sendText.RoomId, sendText.Content)
+
+	err = roomMgr.SendText(sendText)
+	return
+}
+

@@ -18,11 +18,18 @@ const (
 	AllRoomListCmd   = 1005
 	GetRoomListCmd   = 1006
 	UserEnterRoomRespCmd = 1007
+	BoardcastUserEnterRoomCmd = 1008
 )
 
 type Protocal struct {
 	Length uint32
 	CmdNo  uint16
+}
+
+type BoardcastUserEnterRoom struct {
+	EnterUserId uint64
+	EnterUserName string
+	RoomInfo *Room
 }
 
 type UserEnterRoom struct {
@@ -50,6 +57,7 @@ type UserSendText struct {
 }
 
 type UserRecvText struct {
+	Code int
 	RoomId uint64
 	AuthorUserId uint64
 	AuthorUserName string
@@ -128,6 +136,12 @@ func UnPack(conn net.Conn) (cmdNo uint16, result interface{}, err error){
 		tmpBody = &UserEnterRoom{}
 	case UserEnterRoomRespCmd:
 		tmpBody = &UserEnterRoomResp{}
+	case BoardcastUserEnterRoomCmd:
+		tmpBody = &BoardcastUserEnterRoom{}
+	case UserSendTextCmd:
+		tmpBody = &UserSendText{}
+	case UserRecvTextCmd:
+		tmpBody = &UserRecvText{}
 	default:
 		err = fmt.Errorf("unsupport command:%d", proto.CmdNo)
 		xlog.LogError("unsupport command:%d, data:%v", proto.CmdNo, string(bodyBuf))

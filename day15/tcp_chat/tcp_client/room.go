@@ -66,7 +66,7 @@ func showRoom(room *protocal.Room) {
 	fmt.Println()
 }
 
-func enterRoom(conn net.Conn, roomId uint64) (err error) {
+func enterRoom(conn net.Conn, roomId uint64) (roomInfo *protocal.Room, err error) {
 	//1. 校验roomid是否合法
 	var validRoomId bool
 	for _, room := range roomList.RoomList {
@@ -128,5 +128,6 @@ func enterRoom(conn net.Conn, roomId uint64) (err error) {
 
 	fmt.Printf("enter room success\n")
 	showRoom(roomResp.RoomInfo)
+	roomInfo = roomResp.RoomInfo
 	return
 }

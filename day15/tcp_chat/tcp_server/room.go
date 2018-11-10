@@ -7,5 +7,5 @@ import (
 type RoomInfo struct {
 	room *protocal.Room
 	//通过user_id获取具体用户的map
-	userMap map[uint64]*User 
+	userMap map[uint64]*User
 }
