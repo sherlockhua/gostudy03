@@ -40,7 +40,7 @@ func main()  {
 
 	logCollect = common.CollectConfig{
 		Topic:"nginx_log",
-		Path:"c:/tmp/c.log",
+		Path:"D:/project/nginx-1.14.0/logs/host.access.log",
 		ModuleName:"nginx",
 	}
 

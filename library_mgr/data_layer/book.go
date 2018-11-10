@@ -12,7 +12,7 @@ func InsertBook(book *model.Book) (err error) {
 		err = fmt.Errorf("invalid book parameter")
 		return
 	}
-
+// \r\n
 	sqlstr := "select book_id from book where book_id=?"
 	var bookId string
 	err = Db.Get(&bookId, sqlstr, book.BookId)

@@ -106,7 +106,12 @@ func GetCollectSystemInfoConfig(key string) (conf *common.CollectSystemInfoConfi
 
 func GetConfig(key string) (conf []*common.CollectConfig, err error) {
 
-	resp , err := etcdClient.client.Get(context.Background(), key)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer func() {
+		cancel()
+	}()
+
+	resp , err := etcdClient.client.Get(ctx, key)
 	if err != nil {
 		xlog.LogError("get key:%s from etcd failed, err:%v", key, err)
 		return

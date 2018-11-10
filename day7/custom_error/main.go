@@ -23,11 +23,11 @@ func main() {
 	fmt.Println(Sqrt(2))
 	_, err := Sqrt(-2)
 	if err != nil {
-		switch err.(type) {
-		case ErrNegativeSqrt:
-			fmt.Printf("ErrNegativeSqrt\n")
-		default:
+	switch err.(type) {
+	case ErrNegativeSqrt:
+		fmt.Printf("ErrNegativeSqrt\n")
+	default:
 
-		}
 	}
+}
 }
