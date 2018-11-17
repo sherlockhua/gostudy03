@@ -1,0 +1,31 @@
+{{ define "./views/index.html" }}
+<html>
+    <head>
+        <title>房间列表</title>
+    </head>
+    <body>
+        <table border="1px">
+            <tr>
+                <td>房间ID</td>
+                <td>房间名称</td>
+                <td>当前人数</td>
+                <td>最大人数</td>
+                <td>话题</td>
+                <td>创建时间</td>
+                <td></td>
+            </tr>
+            {{range .}}
+            <tr>
+                <td>{{.RoomId}}</td>
+                <td>{{.RoomName}}</td>
+                <td>{{.Online}}</td>
+                <td>{{.Cap}}</td>
+                <td>{{.Desc}}</td>
+                <td>{{.CreateTime}}</td>
+                <td><a href="/room/enter?room_id={{.RoomId}}">立即进入</a></td>
+            </tr>
+            {{end}}
+        </table>
+    </body>
+    </html>
+{{end}}
