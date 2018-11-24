@@ -39,10 +39,7 @@ func UserMiddleware(ctx *gin.Context) {
 	}
 
 	
-	ctx.Set(UserNameKey, username)
-	sess.Set(UserIDKey, userId)
-	sess.Set(UserNameKey, username)
-
+	ctx.Set(username, username)
 	defer sess.SessionRelease(ctx.Writer)
 	ctx.Next()
 }

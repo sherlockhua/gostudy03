@@ -1,7 +1,7 @@
 package dal
 
 import (
-	"github.com/gostudy03/web_chat/common"
+	"github.com/gostudy03/web_chat_new/common"
 	"github.com/gostudy03/xlog"
 )
 

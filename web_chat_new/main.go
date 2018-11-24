@@ -3,7 +3,7 @@ package main
 import (
 	//"fmt"
 	//"github.com/gostudy03/web_chat/id_gen"
-	"github.com/gostudy03/web_chat/dal"
+	"github.com/gostudy03/web_chat_new/dal"
 	//"github.com/gostudy03/web_chat/common"
 	"github.com/gostudy03/xlog"
 	//"crypto/md5"

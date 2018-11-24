@@ -76,7 +76,7 @@ func main() {
 	if costMs == 0 {
 		panic("cost ms is zero")
 	}
-	requestPerSec := 1000 * int64(totalRequest) / costMs
+	requestPerSec :=int64(totalRequest) / costMs
 
 	fmt.Printf("total request:%d\n", totalRequest)
 	fmt.Printf("total failed request:%d\n", totalFailed)
