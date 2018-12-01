@@ -33,6 +33,8 @@ func main() {
 	r.LoadHTMLGlob("./views/*")
 	r.Static("/static/", "./static/")
 	r.GET("/user/login", loginView)
+	r.GET("/api/user/info", userInfoHandle)
+	r.GET("/api/room/message", roomMessageHandle)
 	r.POST("/user/register", registerHandle)
 	r.POST("user/login", loginHandle)
 	r.GET("/index", indexView)

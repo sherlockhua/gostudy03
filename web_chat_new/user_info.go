@@ -2,8 +2,13 @@ package main
 
 import (
 	"github.com/gostudy03/web_chat_new/common"
+	"github.com/gostudy03/web_chat_new/proto"
+	"github.com/gostudy03/web_chat_new/dal"
+	"github.com/gostudy03/web_chat_new/id_gen"
 	"github.com/gorilla/websocket"
 	"github.com/gostudy03/xlog"
+	"encoding/json"
+	"fmt"
 )
 
 
@@ -66,10 +71,39 @@ func (u *UserInfo)ReadLoop() {
 		//把用户发过来的消息广播出去了
 		roomInfo := u.RoomInfo
 		for _, user := range roomInfo.UserMap {
-			var msg common.Message
+			var msg proto.Message
+			msg.Type = proto.MessageTypeUserTalk
 			
+
+			var userTalk proto.UserTalk
+			userTalk.UserName = u.User.Username
+			userTalk.UserId = u.User.UserId
+			userTalk.Content = string(data)
+			xlog.LogDebug("recv message, content:%s", userTalk.Content)
+			userTalk.ImageUrl = fmt.Sprintf("/static/image/%d.jpg", userTalk.UserId%15+1)
+
+			data, _ := json.Marshal(&userTalk)
 			msg.Data = data
 			user.AddMessage(&msg)
 		}
+
+		var msg common.RoomMessage
+		msg.RoomId = u.RoomInfo.Room.RoomId
+		msg.Content = string(data)
+		msg.UserId = u.User.UserId
+		go func(message *common.RoomMessage){
+			url := "http://localhost:9090/id/gen"
+			id, err := id_gen.GetId(url)
+			if err != nil {
+				xlog.LogError("call id generator failed, err:%v", err)
+				return
+			}
+			message.MsgId = id
+			err = dal.InsertMessage(message)
+			if err != nil {
+				xlog.LogError("insert message failed, err:%v msg:%#v", err,message)
+				return
+			}
+		}(&msg)
 	}
 }

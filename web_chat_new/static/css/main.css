@@ -163,15 +163,15 @@ ul li{
 }
 
 #si_1{
-	background: url(../images/icon/head_2.png) no-repeat;
+	background: url(/static/image/head_2.png) no-repeat;
 }
 
 #si_2{
-	background: url(../images/icon/head_3.png) no-repeat;
+	background: url(/static/image/head_3.png) no-repeat;
 }
 
 #si_3{
-	background: url(../images/icon/head_4.png) no-repeat;
+	background: url(/static/image/head_4.png) no-repeat;
 }
 
 .sidestrip_icon{
@@ -188,11 +188,11 @@ ul li{
 }
 
 .active{
-	background: url(../images/icon/head_2_1.png) no-repeat !important;
+	background: url(/static/image/head_2_1.png) no-repeat !important;
 }
 
 .sidestrip_bc{
-	background:url(../images/icon/head_5.png) no-repeat;
+	background:url(/static/image/head_5.png) no-repeat;
 	position: absolute;
 	bottom: 20px;
 	width: 16px;
@@ -486,12 +486,12 @@ ul.am-dropdown-content>li>a:focus, ul.am-dropdown-content>li>a:hover{
 	top: 20px;
 	width: 18px;
 	height: 16px;
-	background: url(../images/icon/icon11.png) center center no-repeat;
+	background: url(/static/image/icon11.png) center center no-repeat;
 	cursor:pointer;
 }
 
 .extend:hover{
-	background: url(../images/icon/icon12.png) center center no-repeat;
+	background: url(/static/image/icon12.png) center center no-repeat;
 }
 
 .windows_input{
@@ -520,53 +520,55 @@ ul.am-dropdown-content>li>a:focus, ul.am-dropdown-content>li>a:hover{
 }
 
 .input_icon a:nth-child(1){
-	background: url(../images/icon/icon13.png) no-repeat center center;
+	background: url(/static/image/icon13.png) no-repeat center center;
 }
 
 .input_icon a:nth-child(1):hover{
-	background: url(../images/icon/icon13_1.png) no-repeat center center;
+	background: url(/static/image/icon13_1.png) no-repeat center center;
 }
 
 .input_icon a:nth-child(2){
-	background: url(../images/icon/icon14.png) no-repeat center center;
+	background: url(/static/image/icon13_1.png) no-repeat center center;
+	background: url(/static/image/icon13_1.png) no-repeat center center;
+	background: url(/static/image/icon14.png) no-repeat center center;
 }
 
 .input_icon a:nth-child(2):hover{
-	background: url(../images/icon/icon14_1.png) no-repeat center center;
+	background: url(/static/image/icon14_1.png) no-repeat center center;
 }
 
 .input_icon a:nth-child(3){
-	background: url(../images/icon/icon15.png) no-repeat center center;
+	background: url(/static/image/icon15.png) no-repeat center center;
 }
 
 .input_icon a:nth-child(3):hover{
-	background: url(../images/icon/icon15_1.png) no-repeat center center;
+	background: url(/static/image/icon15_1.png) no-repeat center center;
 }
 
 .input_icon a:nth-child(4){
-	background: url(../images/icon/icon16.png) no-repeat center center;
+	background: url(/static/image/icon16.png) no-repeat center center;
 }
 
 .input_icon a:nth-child(4):hover{
-	background: url(../images/icon/icon16_1.png) no-repeat center center;
+	background: url(/static/image/icon16_1.png) no-repeat center center;
 }
 
 .input_icon a:nth-child(6){
-	background: url(../images/icon/icon17.png) no-repeat center center;
+	background: url(/static/image/icon17.png) no-repeat center center;
 	float: right;
 }
 
 .input_icon a:nth-child(6):hover{
-	background: url(../images/icon/icon17_1.png) no-repeat center center;
+	background: url(/static/image/icon17_1.png) no-repeat center center;
 }
 
 .input_icon a:nth-child(5){
-	background: url(../images/icon/icon18.png) no-repeat center center;
+	background: url(/static/image/icon18.png) no-repeat center center;
 	float: right;
 }
 
 .input_icon a:nth-child(5):hover{
-	background: url(../images/icon/icon18_1.png) no-repeat center center;
+	background: url(/static/image/icon18_1.png) no-repeat center center;
 }
 
 .input_icon a img{

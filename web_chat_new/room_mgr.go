@@ -9,6 +9,7 @@ import (
 
 	"github.com/gostudy03/xlog"
 	"sort"
+	"encoding/json"
 )
 
 var (
@@ -54,8 +55,54 @@ type RoomInfo struct {
 
 }
 
+func (r *RoomInfo) Init(){
+	go r.SyncMessage()
+}
+
+func (r *RoomInfo) SyncMessage() {
+	timer := time.NewTicker(time.Second*10)
+	for {
+		select {
+		case <- timer.C:
+				r.syncOnlineUserList()
+		}
+	}
+}
+
+func (r *RoomInfo)syncOnlineUserList() {
+	var onlineUserList proto.OnlineUserList
+	for _, user := range r.UserMap {
+		var onlineUser proto.OnlineUser
+		onlineUser.UserId = user.User.UserId
+		onlineUser.UserName = user.User.Username
+		onlineUser.ImageUrl = fmt.Sprintf("/static/image/%d.jpg", onlineUser.UserId%15+1)
+		onlineUserList.OnlineUserArray = append(onlineUserList.OnlineUserArray, &onlineUser)
+	}
+
+	onlineUserList.OnlineUserCount = len(r.UserMap)
+
+	data, err := json.Marshal(&onlineUserList)
+	if err != nil {
+		xlog.LogError("marshal json failed, err:%v", err)
+		return
+	}
+
+	var msg proto.Message
+	msg.Type = proto.MessageTypeOnlineUserList
+	msg.Data = data
+
+	for _, user := range r.UserMap {
+		user.AddMessage(&msg)
+	}
+}
+
 func (r *RoomInfo) DeleteUser(user *UserInfo) {
 	delete(r.UserMap, user.User.UserId)
+	err := dal.UpdateRoomOnline(r.Room.RoomId, -1)
+	if err != nil {
+		xlog.LogError("update room online failed, room_id:%d err:%v", r.Room.RoomId, err)
+		return
+	}
 }
 
 func (r *RoomInfo) AddUser(user *UserInfo) (isAlreadyLogin bool) {
@@ -67,13 +114,24 @@ func (r *RoomInfo) AddUser(user *UserInfo) (isAlreadyLogin bool) {
 	var userEnterRoom proto.UserEnterRoom
 	userEnterRoom.UserId = user.User.UserId
 	userEnterRoom.UserName = user.User.Username
+	userEnterRoom.ImageUrl = fmt.Sprintf("/static/image/%d.jpg", userEnterRoom.UserId%15+1)
+
+	data, err := json.Marshal(&userEnterRoom)
+	if err != nil {
+		xlog.LogError("marshal json failed, err:%v", err)
+		return
+	}
+
+	var msg proto.Message
+	msg.Type = proto.MessageTypeUserEnterRoom
+	msg.Data = data
 
 	for _, user := range r.UserMap {
-		user.AddMessage(&userEnterRoom)
+		user.AddMessage(&msg)
 	}
 
 	r.UserMap[user.User.UserId] = user
-	err := dal.UpdateRoomOnline(r.Room.RoomId)
+	err = dal.UpdateRoomOnline(r.Room.RoomId, 1)
 	if err != nil {
 		xlog.LogError("update room online failed, room_id:%d err:%v", r.Room.RoomId, err)
 		return
@@ -108,7 +166,7 @@ func (r *RoomMgr) Init(roomList []*common.Room) (err error) {
 			Room: room,
 			UserMap: make(map[int64]*UserInfo, 1024),
 		}
-
+		roomInfo.Init()
 		r.RoomMap[room.RoomId] = roomInfo
 	}
 	

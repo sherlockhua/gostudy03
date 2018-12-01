@@ -1,10 +1,11 @@
 package main
 
 import (
+	"strconv"
 	
 	"github.com/gin-gonic/gin"
 	"github.com/gostudy03/xlog"
-	
+	"github.com/gostudy03/web_chat_new/dal"
 	"net/http"
 
 )
@@ -21,11 +22,26 @@ func roomEnterView(ctx *gin.Context) {
 	
 	userId := GetUserId(ctx)
 	xlog.LogDebug("room enter view, user_id:%d", userId)
-	roomId, ok := ctx.GetQuery("room_id")
+	roomIdStr, ok := ctx.GetQuery("room_id")
 	if !ok {
 		ctx.Redirect(http.StatusMovedPermanently, "/index")
 		return
 	}
 
-	ctx.HTML(http.StatusOK, "./views/room.html", roomId)
+	roomId, err := strconv.ParseInt(roomIdStr, 10, 64)
+	if err != nil {
+		ctx.Redirect(http.StatusMovedPermanently, "/index")
+		return
+	}
+	roomInfo, err := dal.GetRoomInfoById(roomId)
+	if err != nil {
+		ctx.Redirect(http.StatusMovedPermanently, "/index")
+		return
+	}
+
+	xlog.LogDebug("room_info:%#v", roomInfo)
+	ctx.HTML(http.StatusOK, "./views/room.html", gin.H{
+		"RoomId":roomInfo.RoomId,
+		"RoomName":roomInfo.RoomName,
+	})
 }
